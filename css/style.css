@@ -44,18 +44,18 @@
 /* ---------- dark mode: follows the viewer's device ---------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #191919; --fg: #ECECEC; --muted: #9C9A94; --line: rgba(255, 255, 255, .16);
-    --win: #2A2A2A; --win-fg: #A6A6A6;
+    --bg: #2E2E2E; --fg: #ECECEC; --muted: #A3A19B; --line: rgba(255, 255, 255, .16);   /* a grey desktop, so the dark windows stand out */
+    --win: #1C1C1E; --win-fg: #A6A6A6;
     --ink: #F2F2F2; --text-2: #B4B4B4; --text-3: #8A8A8A;
-    --sys-panel: rgba(38, 38, 40, .9); --sys-panel-edge: rgba(255, 255, 255, .08);
-    --sys-window: #1E1E1E; --sys-sidebar: rgba(44, 44, 46, .95);
+    --sys-panel: rgba(28, 28, 30, .94); --sys-panel-edge: rgba(255, 255, 255, .08);
+    --sys-window: #1C1C1E; --sys-sidebar: rgba(40, 40, 42, .95);
     --sys-text: #F2F2F7; --sys-sub: #98989D; --sys-ph: #EBEBF5; --sys-tool: #C7C7CC;
     --sys-btn: rgba(255, 255, 255, .08); --sys-btn-on: rgba(255, 255, 255, .2); --sys-sep: rgba(255, 255, 255, .1);
     --sys-hover: rgba(255, 255, 255, .1); --sys-pill: rgba(255, 255, 255, .07);
-    --dock-bg: #2C2C2E; --dock-sep: #8E8E93;
+    --dock-bg: #1C1C1E; --dock-sep: #8E8E93;
   }
   .view[data-theme="offline"], .view[data-theme="gc"] {
-    --bg: #191919; --fg: #ECECEC; --muted: #9C9A94; --line: rgba(255, 255, 255, .16); --win: #2A2A2A; --win-fg: #A6A6A6;
+    --bg: #2E2E2E; --fg: #ECECEC; --muted: #A3A19B; --line: rgba(255, 255, 255, .16); --win: #1C1C1E; --win-fg: #A6A6A6;
   }
   .view[data-theme="offline"] { --accent: #CECAC2; }
   .ct-answers .ct-btn { box-shadow: 0 6px 20px -8px rgba(0, 0, 0, .6); }
