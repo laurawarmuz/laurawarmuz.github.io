@@ -458,6 +458,13 @@ if (currentPage()) {
   search.addEventListener('input', apply);
 })();
 
+/* ---------- Projects Finder: folds its sidebar when the window is narrow ---------- */
+(() => {
+  const finder = $('.finder');
+  if (!finder || !window.ResizeObserver) return;
+  new ResizeObserver(([e]) => finder.classList.toggle('narrow', e.contentRect.width < 700)).observe(finder);
+})();
+
 /* ---------- Projects Finder: a click selects the folder like in Finder, then it opens the project ---------- */
 (() => {
   const folders = $$('.pj-folder');

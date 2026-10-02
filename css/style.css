@@ -155,16 +155,16 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
 }
 
 /* ---------- 02 Software: the macOS "Applications" panel on the desktop ---------- */
-/* the scene is a 1698 x 911 stage (same proportions as the PDF page), scaled to fit;
-   --u is one stage unit, so everything keeps its proportions at any screen size */
-#software.active { display: flex; align-items: center; justify-content: center; overflow: hidden;
-                   background: var(--bg); container-type: size; }
-.sw-stage { position: relative; width: min(100cqw, 100cqh * 1698 / 911); aspect-ratio: 1698 / 911;
-            container-type: inline-size; --u: calc(100cqw / 1698);
+/* the scene fills the page like a Mac desktop. --u is one unit of the original 1698 x 911 layout, scaled to the
+   page height; sizes follow --u, but the windows stretch with the page width (more columns of apps on a wider
+   screen), the Memoji keeps to the right edge and the Dock stays centred, the way macOS windows behave */
+#software.active { display: flex; overflow: hidden; background: var(--bg); container-type: size; }
+.sw-stage { position: relative; width: 100%; height: 100%; flex: none;
+            container-type: inline-size; --u: min(calc(100cqh / 911), calc(100cqw / 1150));
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .apps-panel {
   position: absolute; left: calc(51 * var(--u)); top: calc(58 * var(--u));
-  width: calc(1430 * var(--u)); height: calc(715 * var(--u));
+  width: calc(100cqw - 51 * var(--u) - 420 * var(--u)); height: calc(100cqh - 196 * var(--u));
   display: flex; flex-direction: column; padding: calc(26 * var(--u)) calc(40 * var(--u)) 0;
   background: var(--sys-panel); border: 1px solid var(--sys-panel-edge);
   border-radius: calc(46 * var(--u));
@@ -182,19 +182,19 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
 .ap-more { width: calc(42 * var(--u)); height: calc(42 * var(--u)); flex: none; border: calc(2.6 * var(--u)) solid var(--sys-ph);
            border-radius: 50%; display: flex; align-items: center; justify-content: center; gap: calc(4 * var(--u)); opacity: .75; }
 .ap-more i { width: calc(4.5 * var(--u)); height: calc(4.5 * var(--u)); border-radius: 50%; background: var(--sys-ph); }
-.ap-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(18 * var(--u));
+.ap-cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(200 * var(--u)), 1fr)); gap: calc(14 * var(--u)) calc(18 * var(--u));
            padding: calc(18 * var(--u)) 0; border-bottom: 1px solid var(--sys-sep); }
 .ap-cats button {
   height: calc(46 * var(--u)); border: 0; border-radius: calc(15 * var(--u)); cursor: pointer;
   background: var(--sys-btn); color: var(--sys-sub); font-family: inherit; font-weight: 400; font-size: calc(26 * var(--u));
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .04); transition: background .2s, color .2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04); transition: background .2s, color .2s; white-space: nowrap;
 }
 .ap-cats button:hover { color: var(--sys-text); }
 .ap-cats button[aria-pressed="true"] { background: var(--sys-btn-on); color: var(--sys-text); }
 .ap-cats button:focus-visible { outline: 2px solid #4A86E8; outline-offset: 2px; }
 .ap-scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 0 calc(-40 * var(--u)); padding: 0 calc(40 * var(--u)) calc(30 * var(--u)); }
 .ap-grid { list-style: none; margin: 0; padding: calc(30 * var(--u)) 0 calc(26 * var(--u));
-           display: grid; grid-template-columns: repeat(7, 1fr); row-gap: calc(30 * var(--u)); }
+           display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(150 * var(--u)), 1fr)); row-gap: calc(30 * var(--u)); }
 .ap-favs { border-bottom: 1px solid var(--sys-sep); }
 .ap-grid[hidden], .ap-empty[hidden] { display: none; }
 .app { display: flex; flex-direction: column; align-items: center; gap: calc(12 * var(--u)); min-width: 0; }
@@ -205,7 +205,7 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
 .app span { max-width: 100%; padding: 0 calc(6 * var(--u)); font-size: calc(24 * var(--u)); color: var(--sys-text);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ap-empty { margin: calc(60 * var(--u)) 0; text-align: center; color: var(--sys-sub); font-size: calc(26 * var(--u)); }
-.sw-memoji { position: absolute; left: calc(1355 * var(--u)); top: calc(430 * var(--u));
+.sw-memoji { position: absolute; right: calc(17 * var(--u)); bottom: 0;
              width: calc(326 * var(--u)); aspect-ratio: 424 / 629; pointer-events: none;
              animation: breathe 3.6s ease-in-out infinite alternate; }
 .sw-memoji img, .eye-iris { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -243,18 +243,18 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
   31% { transform: translateY(0); }
 }
 @keyframes breathe { to { transform: translateY(calc(-1.6 * var(--u))); } }
-.sw-dock { position: absolute; left: calc(677 * var(--u)); top: calc(812 * var(--u));
+.sw-dock { position: absolute; left: calc(50% - 171.5 * var(--u)); bottom: calc(20.6 * var(--u));
            width: calc(343 * var(--u)); height: calc(78.4 * var(--u)); }
 
 /* ---------- 03 Projects: a Finder window, one folder per project ---------- */
 /* same 1698 x 911 stage as the Software page */
 .pj-hero { height: var(--page-h, 100svh); display: flex; align-items: center; justify-content: center;
            container-type: size; overflow: hidden; }
-.pj-stage { position: relative; width: min(100cqw, 100cqh * 1698 / 911); aspect-ratio: 1698 / 911;
-            container-type: inline-size; --u: calc(100cqw / 1698); color: var(--sys-text); }
+.pj-stage { position: relative; width: 100%; height: 100%;
+            container-type: inline-size; --u: min(calc(100cqh / 911), calc(100cqw / 1150)); color: var(--sys-text); }
 .finder {
   position: absolute; left: calc(51 * var(--u)); top: calc(58 * var(--u));
-  width: calc(1190 * var(--u)); height: calc(715 * var(--u));
+  width: calc(100cqw - 51 * var(--u) - 460 * var(--u)); height: calc(100cqh - 196 * var(--u));
   display: flex; background: var(--sys-window); border-radius: calc(30 * var(--u)); overflow: hidden;
   box-shadow: 0 calc(22 * var(--u)) calc(60 * var(--u)) rgba(0, 0, 0, .16), 0 0 0 1px rgba(0, 0, 0, .08);
 }
@@ -304,6 +304,9 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
 .fd-path span { display: flex; align-items: center; gap: calc(6 * var(--u)); }
 .fd-path svg { width: calc(20 * var(--u)); height: calc(20 * var(--u)); color: #3D96E6; }
 .fd-count { margin-left: auto; }
+/* like Finder: when the window gets narrow the sidebar folds away and the toolbar keeps only what fits */
+.finder.narrow .fd-side { display: none; }
+.finder.narrow .fd-pill:nth-child(2) { display: none; }
 
 /* ---------- tall windows (phones, narrow split views): the desktop scenes stack up ----------
    the window takes the full width, the Memoji and the Dock share the strip underneath */
@@ -317,8 +320,8 @@ html.view-open { overflow: hidden; }               /* the desktop behind stays p
   .fd-side { display: none; }
   .fd-grid { grid-template-columns: repeat(3, 1fr); padding: calc(30 * var(--u)) calc(20 * var(--u)); }
   .fd-pill:nth-child(2) { display: none; }
-  .sw-memoji { left: auto; right: calc(40 * var(--u)); top: auto; bottom: 0; width: calc(215 * var(--u)); }
-  .sw-dock { left: calc(40 * var(--u)); top: auto; bottom: calc(40 * var(--u)); }
+  .sw-memoji { right: calc(40 * var(--u)); bottom: 0; width: calc(215 * var(--u)); }
+  .sw-dock { left: calc(40 * var(--u)); bottom: calc(40 * var(--u)); }
 }
 
 /* ---------- top bar ---------- */
