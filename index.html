@@ -2,20 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FDFDFD" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#191919" media="(prefers-color-scheme: dark)">
   <title>Laura Warmuz · Interdisciplinary Designer</title>
   <meta name="description" content="Laura Warmuz Biernacka is an interdisciplinary designer in Barcelona working on brand identity, social media and digital content.">
   <meta property="og:title" content="Laura Warmuz · p*rtfolio">
   <meta property="og:description" content="Brand identity, social media and digital content. Based in Barcelona.">
   <meta property="og:type" content="website">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=1790596979">
+  <link rel="stylesheet" href="css/style.css?v=1790957651">
 </head>
 <body>
 
   <main id="top">
 
-    <!-- COVER: a 16:9 copy of the PDF portfolio cover -->
+    <!-- COVER: the PDF portfolio cover. It fills the window: js/main.js sets the viewBox to the window's shape
+         and places the groups (wide screens keep the PDF layout, tall ones stack it) -->
     <section class="cover" aria-label="Cover">
       <div class="cover-stick">
       <h1 class="sr-only">p*rtfolio, Laura Warmuz Biernacka, Interdisciplinary designer</h1>
@@ -28,8 +32,10 @@
             <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity=".3"/>
           </filter>
         </defs>
-        <rect width="1600" height="900" fill="#FDFDFD"/>
+        <rect id="coverBg" class="fill-bg" width="1600" height="900" fill="#FDFDFD"/>
 
+        <!-- the Memoji and her messages -->
+        <g id="people">
         <!-- Memoji: walks in from the right during the resize; her feet touch the bottom edge -->
         <g id="memoji" transform="translate(534.5 192.4) scale(1.3104)">
           <g id="memojiGirl" transform="translate(460 0)">
@@ -61,6 +67,10 @@
           </g>
         </g>
 
+        </g>
+
+        <!-- the word in its selection box, and the cursor that resizes and drags it -->
+        <g id="stage">
         <g id="coverWord">
           <text class="cover-word" x="253 425 556 662 752 840 1019 1090 1161" y="467">p*rtfolio</text>
         </g>
@@ -82,6 +92,8 @@
                 d="M0 -30L13 -15H5V15H13L0 30L-13 15H-5V-15H-13Z" fill="#000" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
         </g>
 
+        </g>
+
         <g id="coverFoot" class="cover-foot" fill="#4A86E8">
           <text x="29" y="856">Laura Warmuz Biernacka</text>
           <text x="812" y="856" text-anchor="middle">©2026</text>
@@ -90,7 +102,7 @@
 
         <!-- Editorial header (slides down from the top) and macOS Dock (rises from the bottom) -->
         <g id="menubar" transform="translate(0 -64)">
-          <rect width="1600" height="60" fill="#FDFDFD"/>
+          <rect class="fill-bg bar-bg" width="1600" height="60" fill="#FDFDFD"/>
           <line class="hd-rule" x1="29" y1="60" x2="1571" y2="60"/>
           <a href="#desktop" class="hd-home" aria-label="p*rtfolio, back to the start">
             <text class="hd-title" x="29" y="42">p*rtfolio</text>
@@ -102,6 +114,7 @@
             <a href="#contact" class="hd-link"><text y="44"><tspan class="hd-num">04</tspan><tspan dx="9">Contact</tspan></text><rect class="hd-line" y="51" height="1.5"/></a>
           </g>
         </g>
+        <g id="dockPos">
         <g id="dock" transform="translate(0 110)">
           <!-- macOS Dock, drawn as vector -->
           <g id="dockArt" transform="translate(636 803.5)">
@@ -112,7 +125,7 @@
               <linearGradient id="dk-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5E9BE6"/><stop offset="1" stop-color="#BFD7F2"/></linearGradient>
               <clipPath id="dk-sq"><rect width="100" height="100" rx="22"/></clipPath>
             </defs>
-            <rect width="328" height="75" rx="18" fill="#EBEBEB"/>
+            <rect class="dock-bg" width="328" height="75" rx="18" fill="#EBEBEB"/>
 
             <!-- Finder -->
             <g transform="translate(10 11.5) scale(.49)" clip-path="url(#dk-sq)">
@@ -132,7 +145,7 @@
               <rect x="22" y="64" width="16" height="16" rx="3" fill="#A93BF2"/><rect x="44" y="64" width="16" height="16" rx="3" fill="#4B8FE8"/><rect x="66" y="64" width="16" height="16" rx="3" fill="#13DE8C"/>
             </g>
 
-            <line x1="131.5" y1="11" x2="131.5" y2="62" stroke="#1d1d1f" stroke-width=".6"/>
+            <line class="dock-sep" x1="131.5" y1="11" x2="131.5" y2="62" stroke="#1d1d1f" stroke-width=".6"/>
 
             <!-- App Store -->
             <g transform="translate(143 11.5) scale(.49)">
@@ -167,6 +180,7 @@
             </g>
           </g>
         </g>
+        </g>
       </svg>
       </div>
     </section>
@@ -178,7 +192,7 @@
   <div class="views" aria-hidden="true">
     <!-- the same menu bar as the desktop's, at the same size -->
     <svg class="view-bar" viewBox="0 0 1600 60" role="banner" overflow="visible">
-      <rect width="1600" height="60" fill="#FDFDFD"/>
+      <rect class="fill-bg bar-bg" width="1600" height="60" fill="#FDFDFD"/>
       <line class="hd-rule" x1="29" y1="59.5" x2="1571" y2="59.5"/>
       <a href="#desktop" class="hd-home" aria-label="p*rtfolio, back to the desktop">
         <text class="hd-title" x="29" y="42">p*rtfolio</text>
@@ -201,7 +215,7 @@
         </div>
           <div class="ab-pic" role="img" aria-label="Photo of Laura Warmuz">
             <svg class="ab-base" viewBox="0 0 486 486" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-              <image href="assets/img/laura-photo.jpg?v=1790592743" x="-17.5" y="0" width="521" height="486"/>
+              <image href="assets/img/laura-photo.webp" x="-17.5" y="0" width="521" height="486"/>
             </svg>
             <!-- liquid glass: a frosted pane over the photo, light catching on its rim -->
             <div class="ab-lg" aria-hidden="true"></div>
@@ -212,7 +226,7 @@
                         stroke-width="50" stroke-linecap="round" stroke-linejoin="round" d="M20,310C30.0,303.3 60.0,290.0 80,270C100.0,250.0 123.3,218.3 140,190C156.7,161.7 170.7,123.0 180,100C189.3,77.0 195.3,63.7 196,52C196.7,40.3 190.0,31.7 184,30C178.0,28.3 167.0,28.7 160,42C153.0,55.3 148.3,78.7 142,110C135.7,141.3 128.0,193.3 122,230C116.0,266.7 106.7,321.7 106,330C105.3,338.3 110.7,297.5 118,280C125.3,262.5 137.7,237.0 150,225C162.3,213.0 180.3,207.5 192,208C203.7,208.5 214.7,216.0 220,228C225.3,240.0 223.7,265.0 224,280C224.3,295.0 218.7,308.7 222,318C225.3,327.3 234.3,335.3 244,336C253.7,336.7 267.0,329.3 280,322C293.0,314.7 309.3,303.7 322,292C334.7,280.3 349.7,264.7 356,252C362.3,239.3 363.0,224.7 360,216C357.0,207.3 346.7,200.0 338,200C329.3,200.0 315.3,205.7 308,216C300.7,226.3 294.3,246.0 294,262C293.7,278.0 298.0,299.7 306,312C314.0,324.3 328.3,333.7 342,336C355.7,338.3 374.7,333.3 388,326C401.3,318.7 410.3,312.2 422,292C433.7,271.8 447.3,235.3 458,205C468.7,174.7 480.3,135.0 486,110C491.7,85.0 493.3,67.7 492,55C490.7,42.3 483.7,34.5 478,34C472.3,33.5 463.7,34.3 458,52C452.3,69.7 447.3,108.7 444,140C440.7,171.3 438.0,212.0 438,240C438.0,268.0 438.7,292.0 444,308C449.3,324.0 459.7,333.7 470,336C480.3,338.3 493.7,340.5 506,322C518.3,303.5 533.0,259.5 544,225C555.0,190.5 566.3,143.3 572,115C577.7,86.7 579.3,68.5 578,55C576.7,41.5 569.7,34.5 564,34C558.3,33.5 549.7,34.3 544,52C538.3,69.7 533.2,108.7 530,140C526.8,171.3 525.0,212.0 525,240C525.0,268.0 524.8,292.0 530,308C535.2,324.0 545.7,333.0 556,336C566.3,339.0 581.3,332.7 592,326C602.7,319.3 610.7,311.0 620,296C629.3,281.0 636.3,250.3 648,236C659.7,221.7 677.0,212.7 690,210C703.0,207.3 717.7,212.0 726,220C734.3,228.0 739.0,243.8 740,258C741.0,272.2 738.3,292.3 732,305C725.7,317.7 713.3,329.2 702,334C690.7,338.8 674.0,339.3 664,334C654.0,328.7 644.7,315.3 642,302C639.3,288.7 641.7,267.7 648,254C654.3,240.3 667.7,227.3 680,220C692.3,212.7 707.0,211.0 722,210C737.0,209.0 753.7,215.7 770,214C786.3,212.3 811.7,202.3 820,200"/>
                 </mask>
               </defs>
-              <image href="assets/img/laura-photo.jpg?v=1790592743" x="-17.5" y="0" width="521" height="486" mask="url(#helloMask)"/>
+              <image href="assets/img/laura-photo.webp" x="-17.5" y="0" width="521" height="486" mask="url(#helloMask)"/>
             </svg>
           </div>
         <div class="ab-intro">
@@ -693,6 +707,6 @@
 
   <div class="toast mono" role="status" aria-live="polite"></div>
 
-  <script src="js/main.js?v=1790596979"></script>
+  <script src="js/main.js?v=1790957651"></script>
 </body>
 </html>

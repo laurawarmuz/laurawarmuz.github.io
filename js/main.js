@@ -68,21 +68,6 @@ const updateSecond = atEnd => {
 const menubar = $('#menubar');
 const dock = $('#dock');
 
-// lay out the header links right-aligned from their real text widths
-// (both menu bars: the desktop's and the pages')
-$$('.hd-nav').forEach(nav => {
-  let right = 1571;
-  $$('.hd-link', nav).reverse().forEach(a => {
-    const t = $('text', a), line = $('.hd-line', a);
-    const w = t.getBBox().width;
-    const x = right - w;
-    t.setAttribute('x', x);
-    line.setAttribute('x', x);
-    line.setAttribute('width', w);
-    right = x - 56;
-  });
-});
-
 const BOX = { x: 272, y: 233, w: 1057, h: 297 };   // box at full size
 const ANCHOR = { x: BOX.x, y: BOX.y + BOX.h };     // bottom left corner stays put
 const END_SCALE = 1 / 2;                            // final size: 1/2 of the original
@@ -94,8 +79,86 @@ const GRAB_END = 0.67;     // cursor has moved to the middle of the box
 // from here to the end of the cover's scroll, the box is dragged down;
 // once the scroll is complete she waves and the second message arrives (both timed)
 // drag target: box centred between the bottom of the speech bubble and the top of the Dock
-const BUBBLE_BOTTOM = 378, DOCK_TOP = 803.5;
-const DRAG_Y = (BUBBLE_BOTTOM + DOCK_TOP) / 2 - (ANCHOR.y - BOX.h * END_SCALE / 2);
+// (DRAG_Y depends on the window's shape, so layout() works it out)
+let DRAG_Y = 135, DRAG_X = 0, BAR_H = 60;
+
+/* ---------- Layout: the cover and the pages' menu bar fill the window ----------
+   Everything is drawn in "cover units". Wide windows keep the PDF layout (1600 x 900),
+   stretched with extra room on the sides or above; tall windows (phones, narrow split views)
+   get a 600-unit-wide stack: menu bar on two rows, the word box on top, Memoji and Dock below. */
+const TALL = window.matchMedia('(max-aspect-ratio: 9/10)');
+const coverSvg = $('.cover-frame');
+const setBar = (root, W, tall) => {
+  const hh = tall ? 112 : 60, side = tall ? 16 : 29;
+  $('.bar-bg', root).setAttribute('width', W);
+  $('.bar-bg', root).setAttribute('height', hh);
+  const rule = $('.hd-rule', root);
+  const ry = root === menubar ? hh : hh - .5;
+  rule.setAttribute('x1', side); rule.setAttribute('x2', W - side);
+  rule.setAttribute('y1', ry); rule.setAttribute('y2', ry);
+  const title = $('.hd-title', root);
+  title.setAttribute('x', side); title.setAttribute('y', tall ? 40 : 42);
+  const nav = $('.hd-nav', root), links = $$('.hd-link', nav);
+  const widths = links.map(a => $('text', a).getBBox().width);
+  const put = (a, x, w) => {
+    $('text', a).setAttribute('x', x);
+    const line = $('.hd-line', a); line.setAttribute('x', x); line.setAttribute('width', w);
+  };
+  if (!tall) {                                    // one row, right-aligned from their real widths
+    let right = W - side;
+    for (let i = links.length - 1; i >= 0; i--) { right -= widths[i]; put(links[i], right, widths[i]); right -= 56; }
+    nav.removeAttribute('transform');
+  } else {                                        // second row, spread across the width
+    const total = widths.reduce((a, b) => a + b, 0), avail = W - side * 2;
+    const k = Math.min(1, (avail - 3 * 18) / total), gap = (avail / k - total) / 3;
+    let x = 0;
+    links.forEach((a, i) => { put(a, x, widths[i]); x += widths[i] + gap; });
+    nav.setAttribute('transform', `translate(${side} ${96 - 44 * k}) scale(${k})`);
+  }
+  return hh;
+};
+const layout = () => {
+  const st = $('.cover-stick'), a = st.clientWidth / st.clientHeight, tall = TALL.matches;
+  const W = tall ? 600 : a >= 16 / 9 ? 900 * a : 1600;
+  const H = tall ? 600 / a : a >= 16 / 9 ? 900 : 1600 / a;
+  coverSvg.setAttribute('viewBox', `0 0 ${W.toFixed(1)} ${H.toFixed(1)}`);
+  $('#coverBg').setAttribute('width', W); $('#coverBg').setAttribute('height', H);
+  BAR_H = setBar(menubar, W, tall);
+  const people = $('#people'), stage = $('#stage'), dockPos = $('#dockPos');
+  const foot = $$('text', coverFoot);
+  if (!tall) {
+    const ox = (W - 1600) / 2, oyBox = (H - 900) / 2, oyGirl = H - 900;
+    people.setAttribute('transform', `translate(${ox} ${oyGirl})`);   // her feet stay on the bottom edge
+    stage.setAttribute('transform', `translate(${ox} ${oyBox})`);     // the word stays in the middle
+    dockPos.setAttribute('transform', `translate(${ox} ${H - 900})`);
+    // drag target: centred between the bottom of the speech bubble and the top of the Dock
+    DRAG_Y = (378 + oyGirl + H - 96.5) / 2 - (ANCHOR.y + oyBox - BOX.h * END_SCALE / 2);
+    DRAG_X = 0;
+    [[29, 'start'], [W / 2 + 12, 'middle'], [W - 63, 'end']].forEach(([x, anchor], i) => {
+      foot[i].setAttribute('x', x); foot[i].setAttribute('y', H - 44); foot[i].setAttribute('text-anchor', anchor); foot[i].removeAttribute('display');
+    });
+  } else {
+    const k = Math.min(.58, H * .36 / 670);       // Memoji in the bottom right corner
+    const px = W - 6 - 1537 * k, py = H - 900 * k;
+    people.setAttribute('transform', `translate(${px} ${py}) scale(${k})`);
+    const kd = .82;                               // Dock in the bottom left corner, clear of her
+    dockPos.setAttribute('transform', `translate(${14 - 636 * kd} ${H - 14 - 878.5 * kd}) scale(${kd})`);
+    const kb = (W - 60) / 1057;                   // the word box fills the width, above her messages
+    const cy = (BAR_H + 20 + py + 175 * k) / 2 + 30;
+    stage.setAttribute('transform', `translate(${30 - BOX.x * kb} ${cy - (BOX.y + BOX.h / 2) * kb}) scale(${kb})`);
+    DRAG_Y = (BOX.y + BOX.h / 2) - (ANCHOR.y - BOX.h * END_SCALE / 2);   // dragged back to the middle of the space
+    DRAG_X = (BOX.x + BOX.w / 2) - (ANCHOR.x + BOX.w * END_SCALE / 2);
+    foot[0].setAttribute('x', 16); foot[2].setAttribute('x', W - 16);
+    foot.forEach(t => t.setAttribute('y', H - 30));
+    foot[1].setAttribute('display', 'none');
+  }
+  // the pages' menu bar is the same bar, at the same size
+  const vb = $('.view-bar');
+  vb.setAttribute('viewBox', `0 0 ${W.toFixed(1)} ${BAR_H}`);
+  setBar(vb, W, tall);
+  document.documentElement.classList.toggle('tall', tall);
+  document.documentElement.style.setProperty('--bar-h', `${st.clientWidth * BAR_H / W}px`);
+};
 
 const clamp01 = v => Math.min(1, Math.max(0, v));
 const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -150,10 +213,10 @@ const drawCover = () => {
   const grab = phase(p, RESIZE_END, GRAB_END);
   const drag = phase(p, GRAB_END, 1);   // the box is dragged down with the last stretch of scroll
   const s = lerp(1, END_SCALE, resize);
-  const dy = DRAG_Y * drag;
+  const dy = DRAG_Y * drag, dx = DRAG_X * drag;
 
   // box geometry: scaled towards the bottom left corner, then dragged down by dy
-  const w = BOX.w * s, h = BOX.h * s, x = ANCHOR.x, y = ANCHOR.y - h + dy;
+  const w = BOX.w * s, h = BOX.h * s, x = ANCHOR.x + dx, y = ANCHOR.y - h + dy;
   selRect.setAttribute('x', x);
   selRect.setAttribute('y', y);
   selRect.setAttribute('width', w);
@@ -169,7 +232,7 @@ const drawCover = () => {
   rotLine.setAttribute('y2', y);
   rotKnob.setAttribute('cx', mid);
   rotKnob.setAttribute('cy', y - 141);
-  coverWord.setAttribute('transform', `translate(0 ${dy}) translate(${ANCHOR.x} ${ANCHOR.y}) scale(${s}) translate(${-ANCHOR.x} ${-ANCHOR.y})`);
+  coverWord.setAttribute('transform', `translate(${dx} ${dy}) translate(${ANCHOR.x} ${ANCHOR.y}) scale(${s}) translate(${-ANCHOR.x} ${-ANCHOR.y})`);
 
   // cursor: glide to the top right handle and resize, then go to the middle of the box and drag it
   const corner = { x: x + w, y: y };
@@ -199,7 +262,7 @@ const drawCover = () => {
   // the cover becomes a Mac desktop: bottom text fades out,
   // menu bar drops in from the top and the Dock rises from the bottom
   coverFoot.setAttribute('opacity', 1 - slide);
-  menubar.setAttribute('transform', `translate(0 ${lerp(-64, 0, slide)})`);
+  menubar.setAttribute('transform', `translate(0 ${lerp(-BAR_H - 4, 0, slide)})`);
   dock.setAttribute('transform', `translate(0 ${lerp(110, 0, slide)})`);
 };
 
@@ -220,7 +283,8 @@ const onScroll = () => { drawCover(); ticking = false; };
 window.addEventListener('scroll', () => {
   if (!ticking) { requestAnimationFrame(onScroll); ticking = true; }
 }, { passive: true });
-window.addEventListener('resize', onScroll);
+window.addEventListener('resize', () => { layout(); onScroll(); });
+layout();
 onScroll();
 
 /* ---------- Pages: opened with the header buttons, not by scrolling ---------- */
@@ -252,7 +316,7 @@ const onViewScroll = () => {
 viewEls.forEach(v => v.addEventListener('scroll', () => requestAnimationFrame(onViewScroll), { passive: true }));
 
 // height of a page under the menu bar, for the full-screen parts of the pages
-const setBarHeight = () => views.style.setProperty('--page-h', `${views.clientHeight - views.clientWidth * 60 / 1600}px`);
+const setBarHeight = () => views.style.setProperty('--page-h', `${views.clientHeight - parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h'))}px`);
 window.addEventListener('resize', setBarHeight);
 const showPage = id => {
   activeView = viewEls.find(v => v.id === id) || null;
@@ -331,7 +395,7 @@ if (currentPage()) {
   const later = (fn, ms) => timers.push(setTimeout(fn, ms));
   const place = r => Object.assign(pic.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
   // first the photo covers the whole screen, then it moves into its slot next to the text
-  const full = () => place({ left: 0, top: 0, width: hero.clientWidth, height: hero.clientHeight });
+  const full = () => place({ left: 0, top: 0, width: hero.clientWidth, height: Math.min(hero.clientHeight, $('#about').clientHeight) });   // what is on screen
   const inSlot = () => {
     const h = hero.getBoundingClientRect(), r = $('.ab-slot', hero).getBoundingClientRect();
     place({ left: r.left - h.left, top: r.top - h.top, width: r.width, height: r.height });
